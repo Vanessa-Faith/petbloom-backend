@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-py"
+  interface = "asyncio"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  firebaseUid  String   @unique
+  phone        String?
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String?
+  country      String?
+  profileImage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  cartItems    CartItem[]
+  wishlistItems Wishlist[]
+  orders       Order[]
+}
+
+model Pet {
+  id            String   @id @default(cuid())
+  name          String
+  species       String
+  breed         String
+  age           Int
+  weight        Float?
+  description   String?
+  images        String[]
+  videos        String[]
+  healthRecords String?
+  personality   String[]
+  breederName   String
+  breederRating Float    @default(5.0)
+  shelterName   String?
+  price         Float
+  available     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  cartItems     CartItem[]
+  wishlistItems Wishlist[]
+  orderItems    OrderItem[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  petType     String?
+  brand       String?
+  price       Float
+  images      String[]
+  stock       Int      @default(0)
+  filters     String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  cartItems   CartItem[]
+  wishlistItems Wishlist[]
+  orderItems  OrderItem[]
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  petId     String?
+  pet       Pet?     @relation(fields: [petId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1)
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  petId     String?
+  pet       Pet?     @relation(fields: [petId], references: [id], onDelete: Cascade)
+  addedAt   DateTime @default(now())
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status          String   @default("pending")
+  totalPrice      Float
+  shippingAddress String
+  deliveryOption  String
+  pickupLocation  String?
+  trackingNumber  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  orderItems      OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  petId     String?
+  pet       Pet?     @relation(fields: [petId], references: [id], onDelete: SetNull)
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+}
