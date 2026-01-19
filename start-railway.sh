@@ -3,6 +3,10 @@ set -e
 
 echo "Starting PetBloom Backend..."
 
+# Set default port if not provided
+export PORT=${PORT:-8000}
+echo "Using PORT: $PORT"
+
 # Run database migrations if DATABASE_URL is set
 if [ -n "$DATABASE_URL" ]; then
     echo "Running database migrations..."
@@ -12,5 +16,5 @@ else
 fi
 
 # Start the application
-echo "Starting uvicorn..."
-exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+echo "Starting uvicorn on port $PORT..."
+exec uvicorn app.main:app --host 0.0.0.0 --port $PORT
